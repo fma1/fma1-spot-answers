@@ -1,6 +1,7 @@
 package example
 
 import scala.collection.mutable.Map
+import scala.annotation.tailrec
 
 object Main extends App {
   // (s: weather, t: therapyw) => theeraw
@@ -36,5 +37,17 @@ object Main extends App {
     // Just combine the "array" (it's an IndexedSeq, sort of a wrapper class around native arrays)
     // of strings into one string
     sortedResultSeq.reduce((acc, curr) => acc + curr)
+  }
+
+  // Sum data type
+  sealed trait EncodedString
+  final case class InnerString(str: String) extends EncodedString
+  final case class InnerCode(code: Code) extends EncodedString
+
+  case class Code(repeatNum: Int, encodedStr: EncodedString)
+
+  @tailrec
+  def createRecursiveCode(str: String) {
+
   }
 }
