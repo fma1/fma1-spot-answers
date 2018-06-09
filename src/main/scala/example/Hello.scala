@@ -1,9 +1,6 @@
 package example
 
-object Hello extends Greeting with App {
-  println(greeting)
-}
+import scala.collection.mutable.Map
 
-trait Greeting {
-  lazy val greeting: String = "hello"
+object Main extends App {
 }
