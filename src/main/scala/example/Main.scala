@@ -5,6 +5,7 @@ import scala.collection.mutable.Map
 object Main extends App {
   // (s: weather, t: therapyw) => theeraw
   // (s: good, t: odg) => oodg
+  // Assumption: t contains all characters that appear in s
   def sortByString(s: String, t: String): String = {
     // Map/hashtable from Letter (a, b, c, etc.) to Number of times it appears in s
     val letterOccurrences: Map[Char, Int] = Map[Char, Int]()
@@ -32,7 +33,8 @@ object Main extends App {
         }
       })
 
-    // Just combine the "array" (it's an IndexedSeq) of strings to one string
+    // Just combine the "array" (it's an IndexedSeq, sort of a wrapper class around native arrays)
+    // of strings into one string
     sortedResultSeq.reduce((acc, curr) => acc + curr)
   }
 }
