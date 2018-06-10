@@ -8,5 +8,7 @@ lazy val root = (project in file(".")).
       version      := "0.1.0-SNAPSHOT"
     )),
     name := "fma1-spot-answers",
-    libraryDependencies += scalaTest % Test
+    libraryDependencies += scalaTest % Test,
+    fork := true,
+    cancelable in Global := true
   )
