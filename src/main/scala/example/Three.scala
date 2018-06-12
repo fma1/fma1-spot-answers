@@ -1,34 +1,64 @@
 package example
 
-import scala.collection.mutable.{Map, Set => MutableSet}
+import scala.collection.mutable.{ListBuffer, Map => MutableMap, Set => MutableSet}
 import scala.collection.immutable.Set
 
 object Three {
-  // Sort of like a global hashtable for all the possible denominations
-  // a certain denomination will map to another hashtable which maps
-  // Int -> Set[List[Int]]
-  lazy val maps = Map[List[Int], Map[Int, Set[List[Int]]]]()
+  def changePossibilities(amount: Int, denominations: List[Int]): Set[List[Int]] = {
+    val map: MutableMap[Int, MutableSet[List[Int]]] = MutableMap[Int, MutableSet[List[Int]]]()
 
-  def changePossibilities(amount: Int, denominations: List[Int]): MutableSet[List[Int]] = {
-    if (maps.get(denominations).isEmpty) {
-      maps.put(denominations, Map[Int, Set[List[Int]]]())
+    def addToMap(denomAcc: List[Int], amountAcc: List[Int]): Unit = {
+      val zipLst = amountAcc.zipAll(denomAcc, 0, 0)
+      val denomLst = ListBuffer[Int]()
+
+      zipLst.foreach({ case (amount, denomination) => {
+        denomLst.prepend(denomination)
+        if (amount != 0) {
+          map.get(amount) match {
+            case Some(oldSet) =>
+              oldSet.add(denomLst.toList)
+            case None =>
+              val newSet = MutableSet[List[Int]]()
+              newSet.add(denomLst.toList)
+              map.put(amount, newSet)
+          }
+        } else if (amount == 0) {
+          map.get(amountAcc.last) match {
+            case Some(oldSet) =>
+              oldSet.add(denomAcc)
+            case None =>
+              val newSet = MutableSet[List[Int]]()
+              newSet.add(denomAcc)
+              map.put(amount, newSet)
+          }
+        }
+      }})
     }
 
-    val resultSet: MutableSet[List[Int]] = MutableSet[List[Int]]()
+    def changeHelper(amount: Int, denomAcc: List[Int], amountAcc: List[Int]): Unit = {
+      if (amount < 0) {
+        ()
+      }
+      else if (map.contains(amount)) {
+        val prevDenomSet: MutableSet[List[Int]] = map.get(amount).get
 
-    def changeHelper(amount: Int, denominations: List[Int], acc: List[Int]): Unit = {
-      if (amount >= 0) {
-        if (amount == 0) {
-          resultSet.add(acc)
-        } else {
-          denominations.foreach(denomination => changeHelper(amount - denomination, denominations, denomination :: acc))
-          ()
-        }
+        prevDenomSet.foreach(prevDenomLst => {
+          val newDenomLst: List[Int] = denomAcc ++ prevDenomLst
+          addToMap(newDenomLst, amountAcc)
+        })
+      }
+      else if (amount == 0) {
+        addToMap(denomAcc, amountAcc)
+      } else {
+        denominations.foreach(denomination => changeHelper(amount - denomination, denomination :: denomAcc, amount :: amountAcc))
       }
     }
 
-    changeHelper(amount, denominations, List[Int]())
+    changeHelper(amount, List[Int](), List[Int]())
 
-    resultSet
+    map.get(amount) match {
+      case Some(resultSet) => resultSet.toSet
+      case None => Set[List[Int]]()
+    }
   }
 }
